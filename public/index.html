@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <meta name="description" content="Live weather forecast for Barasat, North 24 Parganas, West Bengal.">
+  <title>Barasat Weather — ELECTROPOOL</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#07111f;--bg2:#0b1728;--card:rgba(16,30,49,.82);--card2:#12233a;
+      --text:#eef6ff;--muted:#9db0c7;--line:rgba(255,255,255,.09);
+      --accent:#55b7ff;--accent2:#8b7cff;--good:#51d99a;--warn:#ffd166;--bad:#ff6b7a;
+      --shadow:0 20px 60px rgba(0,0,0,.24);--radius:22px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);
+      background:radial-gradient(circle at 15% 0%,rgba(85,183,255,.16),transparent 28%),radial-gradient(circle at 85% 10%,rgba(139,124,255,.14),transparent 28%),linear-gradient(145deg,var(--bg),#091524 55%,#07111f);min-height:100vh}
+    a{color:inherit}
+    .wrap{width:min(1180px,calc(100% - 28px));margin:auto}
+    header{padding:28px 0 18px;display:flex;justify-content:space-between;align-items:center;gap:18px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:45px;height:45px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,#55b7ff,#7b68ff);box-shadow:0 10px 30px rgba(85,183,255,.22);font-size:23px}
+    h1,h2,h3,p{margin:0}.brand h1{font-size:20px}.brand small{color:var(--muted)}
+    .top-actions{display:flex;gap:8px;align-items:center}
+    button{border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700}
+    button:hover{background:rgba(255,255,255,.1)}
+    .hero{display:grid;grid-template-columns:1.4fr .6fr;gap:16px;margin:10px 0 18px}
+    .hero-card,.card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(18,35,58,.92),rgba(10,23,39,.84));box-shadow:var(--shadow);border-radius:var(--radius)}
+    .hero-card{padding:28px;position:relative;overflow:hidden}
+    .hero-card:after{content:"";position:absolute;width:260px;height:260px;right:-90px;top:-90px;background:radial-gradient(circle,rgba(85,183,255,.18),transparent 65%);pointer-events:none}
+    .location{color:var(--muted);font-size:14px;margin-bottom:18px}
+    .main-temp{font-size:clamp(60px,9vw,92px);font-weight:800;line-height:.95;letter-spacing:-4px}
+    .condition{font-size:20px;margin-top:10px}.updated{color:var(--muted);font-size:12px;margin-top:10px}
+    .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:24px}
+    .mini{background:rgba(255,255,255,.045);border:1px solid var(--line);padding:13px;border-radius:15px}.mini b{display:block;font-size:16px}.mini span{font-size:11px;color:var(--muted)}
+    .status-card{padding:20px}.status-card h3{margin-bottom:14px}
+    .provider{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+    .provider:last-child{border-bottom:0}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:8px;background:var(--muted)}
+    .dot.ok{background:var(--good);box-shadow:0 0 12px var(--good)}.dot.bad{background:var(--bad)}
+    .provider small{color:var(--muted)}
+    .tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 16px}.tab{white-space:nowrap}.tab.active{background:linear-gradient(135deg,#2c91d9,#6659dd);border-color:transparent}
+    .section{display:none}.section.active{display:block}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:8px 0 14px}.section-head p{color:var(--muted);font-size:13px}
+    .grid{display:grid;gap:14px}.grid-4{grid-template-columns:repeat(4,1fr)}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-2{grid-template-columns:repeat(2,1fr)}
+    .card{padding:18px}.card h3{font-size:15px;margin-bottom:12px}
+    .big-number{font-size:28px;font-weight:800}.muted{color:var(--muted)}
+    .hour-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+    .hour{min-width:112px;text-align:center;padding:14px 10px;border:1px solid var(--line);border-radius:17px;background:rgba(255,255,255,.035)}
+    .hour .time{font-size:12px;color:var(--muted)}.hour .emoji{font-size:27px;margin:8px 0}.hour strong{font-size:18px}.hour small{display:block;color:var(--muted);margin-top:7px}
+    .day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}.day{padding:14px 10px;text-align:center;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.035);min-width:0}
+    .day .date{font-size:12px;color:var(--muted)}.day .emoji{font-size:30px;margin:10px 0}.day .range{font-weight:800}.day .rain{font-size:11px;color:#69c7ff;margin-top:7px}
+    .chart-card{height:340px}.chart-wrap{height:270px}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{padding:14px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.035)}.metric span{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}.metric b{font-size:18px}
+    .compare{width:100%;border-collapse:collapse}.compare th,.compare td{padding:12px 9px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}.compare th{color:var(--muted);font-weight:600}.source-pill{display:inline-flex;padding:5px 8px;border-radius:9px;background:rgba(255,255,255,.06);font-size:11px}
+    .alert{padding:13px 15px;border-radius:14px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);color:#ffe4a1;margin-bottom:10px}
+    .footer{padding:30px 0 40px;color:var(--muted);font-size:12px;text-align:center}.footer a{color:#8bcfff;text-decoration:none}
+    .loading{opacity:.7}.error-box{padding:20px;border-radius:16px;background:rgba(255,107,122,.09);border:1px solid rgba(255,107,122,.2);color:#ffb4bd}
+    @media(max-width:900px){.hero{grid-template-columns:1fr}.grid-4,.metrics{grid-template-columns:repeat(2,1fr)}.day-grid{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:600px){.wrap{width:min(100% - 18px,1180px)}header{padding-top:18px}.hero-card{padding:20px}.hero-stats{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}.grid-4{grid-template-columns:repeat(2,1fr)}.day-grid{grid-template-columns:repeat(2,1fr)}.main-temp{font-size:64px}.section-head{align-items:start;flex-direction:column}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">☁️</div>
+      <div><h1>Barasat Weather</h1><small>North 24 Parganas · West Bengal</small></div>
+    </div>
+    <div class="top-actions"><span id="clock" class="muted"></span><button id="refresh">↻ Refresh</button></div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-card">
+        <div class="location">📍 Barasat, West Bengal, India · 22.7210°N, 88.4827°E</div>
+        <div id="heroContent" class="loading">
+          <div class="main-temp">--°</div><div class="condition">Loading weather…</div>
+        </div>
+        <div class="hero-stats" id="heroStats"></div>
+      </div>
+      <div class="status-card card">
+        <h3>Live data sources</h3>
+        <div id="providers"></div>
+        <p class="muted" style="font-size:11px;margin-top:13px">The dashboard combines independent providers. Forecasts can disagree, especially for rain.</p>
+      </div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="today">Today · Hourly</button>
+      <button class="tab" data-tab="days">Upcoming days</button>
+      <button class="tab" data-tab="compare">Provider comparison</button>
+      <button class="tab" data-tab="details">All details</button>
+    </nav>
+
+    <section id="overview" class="section active">
+      <div class="section-head"><div><h2>Barasat right now</h2><p>Consensus values are the median of available providers.</p></div><span id="generated" class="muted"></span></div>
+      <div class="grid grid-4" id="overviewMetrics"></div>
+      <div class="grid grid-2" style="margin-top:14px">
+        <div class="card chart-card"><h3>Temperature · next 24 hours</h3><div class="chart-wrap"><canvas id="tempChart"></canvas></div></div>
+        <div class="card chart-card"><h3>Rain probability · next 24 hours</h3><div class="chart-wrap"><canvas id="rainChart"></canvas></div></div>
+      </div>
+    </section>
+
+    <section id="today" class="section">
+      <div class="section-head"><div><h2>Today in Barasat</h2><p>Hourly forecast from all available providers.</p></div></div>
+      <div class="card"><h3>Open-Meteo hourly</h3><div id="openHourly" class="hour-scroll"></div></div>
+      <div class="card" style="margin-top:14px"><h3>WeatherAPI.com hourly</h3><div id="weatherHourly" class="hour-scroll"></div></div>
+      <div class="card" style="margin-top:14px"><h3>Tomorrow.io hourly</h3><div id="tomorrowHourly" class="hour-scroll"></div></div>
+    </section>
+
+    <section id="days" class="section">
+      <div class="section-head"><div><h2>Upcoming forecast</h2><p>Open-Meteo supplies the longer 7-day view; other cards show their available free-tier horizon.</p></div></div>
+      <div class="card"><h3>Open-Meteo · 7 days</h3><div id="openDays" class="day-grid"></div></div>
+      <div class="card" style="margin-top:14px"><h3>WeatherAPI.com · available days</h3><div id="weatherDays" class="day-grid"></div></div>
+      <div class="card" style="margin-top:14px"><h3>Tomorrow.io · available days</h3><div id="tomorrowDays" class="day-grid"></div></div>
+    </section>
+
+    <section id="compare" class="section">
+      <div class="section-head"><div><h2>Provider comparison</h2><p>Useful for spotting disagreement before trusting a rain forecast.</p></div></div>
+      <div class="card">
+        <table class="compare">
+          <thead><tr><th>Metric</th><th>Open-Meteo</th><th>WeatherAPI</th><th>Tomorrow.io</th></tr></thead>
+          <tbody id="compareBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="details" class="section">
+      <div class="section-head"><div><h2>Detailed weather data</h2><p>More fields from the providers, where available.</p></div></div>
+      <div id="alerts"></div>
+      <div class="grid grid-2" id="detailCards"></div>
+    </section>
+  </main>
+
+  <div class="footer">
+    Weather data from <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a>,
+    <a href="https://www.weatherapi.com/" target="_blank" rel="noreferrer">WeatherAPI.com</a> and
+    <a href="https://www.tomorrow.io/" target="_blank" rel="noreferrer">Tomorrow.io</a>.
+    Open-Meteo data is used under its applicable CC BY 4.0 terms for the free service.
+  </div>
+</div>
+
+<script>
+const state = { data:null, charts:{} };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (v, unit="", digits=0) => Number.isFinite(Number(v)) ? `${Number(v).toFixed(digits)}${unit}` : "—";
+const provider = name => state.data?.providers?.find(p => p.provider === name);
+const ok = p => p && p.status === "ok";
+
+function weatherEmoji(code, text="") {
+  const c = Number(code);
+  if (c >= 95) return "⛈️";
+  if (c >= 80) return "🌦️";
+  if (c >= 61) return "🌧️";
+  if (c >= 51) return "🌦️";
+  if (c >= 45) return "🌫️";
+  if (c === 3) return "☁️";
+  if (c === 2) return "⛅";
+  if (c === 1) return "🌤️";
+  if (c === 0) return "☀️";
+  const t = text.toLowerCase();
+  if (t.includes("thunder")) return "⛈️";
+  if (t.includes("rain")) return "🌧️";
+  if (t.includes("cloud")) return "☁️";
+  return "🌤️";
+}
+function windDir(deg) {
+  if (!Number.isFinite(Number(deg))) return "—";
+  const dirs = ["N","NE","E","SE","S","SW","W","NW"];
+  return dirs[Math.round(Number(deg)/45) % 8];
+}
+function localTime(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return new Intl.DateTimeFormat("en-IN",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:"Asia/Kolkata"}).format(d);
+}
+function dayLabel(date) {
+  if (!date) return "—";
+  const d = new Date(date+"T12:00:00");
+  return new Intl.DateTimeFormat("en-IN",{weekday:"short",day:"numeric",month:"short",timeZone:"Asia/Kolkata"}).format(d);
+}
+function hourLabel(iso) { return localTime(iso); }
+
+function renderProviders() {
+  $("providers").innerHTML = state.data.providers.map(p => {
+    const cls = p.status === "ok" ? "ok" : "bad";
+    const label = p.status === "ok" ? "Online" : p.status === "not_configured" ? "Key missing" : "Error";
+    return `<div class="provider"><div><span class="dot ${cls}"></span><b>${esc(p.provider)}</b></div><small>${label}</small></div>`;
+  }).join("");
+}
+
+function renderHero() {
+  const c = state.data.consensus || {};
+  $("heroContent").classList.remove("loading");
+  $("heroContent").innerHTML = `<div class="main-temp">${fmt(c.temp,"°")}</div><div class="condition">${weatherEmoji(null,c.condition)} ${esc(c.condition)}</div><div class="updated">Updated ${new Date(state.data.generatedAt).toLocaleString("en-IN",{hour:"numeric",minute:"2-digit",day:"2-digit",month:"short"})}</div>`;
+  $("heroStats").innerHTML = [
+    ["Feels like",fmt(c.feels,"°C")],["Humidity",fmt(c.humidity,"%")],["Wind",fmt(c.wind," km/h")],["Pressure",fmt(c.pressure," hPa")]
+  ].map(([a,b])=>`<div class="mini"><span>${a}</span><b>${b}</b></div>`).join("");
+}
+
+function renderOverview() {
+  const c = state.data.consensus || {};
+  const items = [
+    ["Temperature",fmt(c.temp,"°C"),"Median of online providers"],
+    ["Feels like",fmt(c.feels,"°C"),"Apparent temperature"],
+    ["Humidity",fmt(c.humidity,"%"),"Relative humidity"],
+    ["Wind",fmt(c.wind," km/h"),"10m / near-surface"],
+    ["Pressure",fmt(c.pressure," hPa"),"Sea-level/surface depending provider"],
+    ["Rain now",fmt(c.precip," mm"),"Current precipitation"],
+    ["Provider spread",fmt(c.tempSpread,"°C",1),"Temperature disagreement"],
+    ["Providers online",`${c.providersOnline}/3`,"Data sources available"]
+  ];
+  $("overviewMetrics").innerHTML = items.map(([a,b,d])=>`<div class="card metric"><span>${a}</span><b>${b}</b><small class="muted" style="display:block;margin-top:6px;font-size:10px">${d}</small></div>`).join("");
+}
+
+function openMeteoHours(p) {
+  if (!ok(p) || !p.hourly?.time) return [];
+  const now = Date.now();
+  return p.hourly.time.map((t,i)=>({t, temp:p.hourly.temperature_2m?.[i], rain:p.hourly.precipitation_probability?.[i], code:p.hourly.weather_code?.[i], hum:p.hourly.relative_humidity_2m?.[i], wind:p.hourly.wind_speed_10m?.[i], uv:p.hourly.uv_index?.[i]}))
+    .filter(x=>new Date(x.t).getTime() >= now-30*60*1000).slice(0,24);
+}
+function weatherApiHours(p) {
+  if (!ok(p)) return [];
+  return (p.hourly||[]).filter(x=>new Date(x.time).getTime() >= Date.now()-30*60*1000).slice(0,24)
+    .map(x=>({t:x.time,temp:x.temp_c,rain:x.chance_of_rain,code:x.condition?.code,text:x.condition?.text,hum:x.humidity,wind:x.wind_kph,uv:x.uv}));
+}
+function tomorrowHours(p) {
+  if (!ok(p)) return [];
+  return (p.hourly||[]).filter(x=>new Date(x.startTime).getTime() >= Date.now()-30*60*1000).slice(0,24)
+    .map(x=>({t:x.startTime,temp:x.values?.temperature,rain:x.values?.precipitationProbability,code:x.values?.weatherCode,hum:x.values?.humidity,wind:x.values?.windSpeed,uv:x.values?.uvIndex}));
+}
+function hourCards(arr) {
+  if (!arr.length) return `<div class="muted">No data available. Configure this provider's API key.</div>`;
+  return arr.map((x,i)=>`<div class="hour"><div class="time">${i===0?"Now":hourLabel(x.t)}</div><div class="emoji">${weatherEmoji(x.code,x.text)}</div><strong>${fmt(x.temp,"°")}</strong><small>💧 ${fmt(x.rain,"%")}</small><small>💨 ${fmt(x.wind," km/h")}</small><small>RH ${fmt(x.hum,"%")}</small></div>`).join("");
+}
+function renderToday() {
+  $("openHourly").innerHTML = hourCards(openMeteoHours(provider("Open-Meteo")));
+  $("weatherHourly").innerHTML = hourCards(weatherApiHours(provider("WeatherAPI.com")));
+  $("tomorrowHourly").innerHTML = hourCards(tomorrowHours(provider("Tomorrow.io")));
+}
+
+function openDays(p) {
+  if (!ok(p)) return [];
+  const d=p.daily||{};
+  return (d.time||[]).map((date,i)=>({date,max:d.temperature_2m_max?.[i],min:d.temperature_2m_min?.[i],rain:d.precipitation_probability_max?.[i],code:d.weather_code?.[i],wind:d.wind_speed_10m_max?.[i],uv:d.uv_index_max?.[i]}));
+}
+function weatherDays(p) { return ok(p)?(p.daily||[]):[]; }
+function tomorrowDays(p) {
+  if (!ok(p)) return [];
+  return (p.daily||[]).map(x=>({date:x.startTime?.slice(0,10),max:x.values?.temperatureMax,min:x.values?.temperatureMin,rain:x.values?.precipitationProbabilityAvg,code:x.values?.weatherCodeMax,wind:x.values?.windSpeedMax,uv:x.values?.uvIndexMax}));
+}
+function dayCards(arr) {
+  if (!arr.length) return `<div class="muted">No data available.</div>`;
+  return arr.map(x=>`<div class="day"><div class="date">${dayLabel(x.date)}</div><div class="emoji">${weatherEmoji(x.code,x.condition)}</div><div class="range">${fmt(x.max,"°")} / ${fmt(x.min,"°")}</div><div class="rain">🌧 ${fmt(x.rain,"%")}</div><div class="muted" style="font-size:10px;margin-top:6px">💨 ${fmt(x.wind," km/h")} · UV ${fmt(x.uv)}</div></div>`).join("");
+}
+function renderDays() {
+  $("openDays").innerHTML = dayCards(openDays(provider("Open-Meteo")));
+  $("weatherDays").innerHTML = dayCards(weatherDays(provider("WeatherAPI.com")));
+  $("tomorrowDays").innerHTML = dayCards(tomorrowDays(provider("Tomorrow.io")));
+}
+
+function currentFor(p) {
+  if (!ok(p)) return null;
+  const c=p.current||{};
+  return {temp:c.temp,feels:c.feels,humidity:c.humidity,wind:c.wind,gust:c.gust,pressure:c.pressure,precip:c.precip,cloud:c.cloud,visibility:c.visibility,uv:c.uv,dew:c.dew,rainChance:c.rainChance,condition:c.condition};
+}
+function renderCompare() {
+  const ps=["Open-Meteo","WeatherAPI.com","Tomorrow.io"].map(provider);
+  const rows=[
+    ["Status",...ps.map(p=>p?.status==="ok"?"Online":p?.status==="not_configured"?"Key missing":"Error")],
+    ["Temperature",...ps.map(p=>fmt(currentFor(p)?.temp,"°C"))],
+    ["Feels like",...ps.map(p=>fmt(currentFor(p)?.feels,"°C"))],
+    ["Humidity",...ps.map(p=>fmt(currentFor(p)?.humidity,"%"))],
+    ["Wind",...ps.map(p=>fmt(currentFor(p)?.wind," km/h"))],
+    ["Wind gust",...ps.map(p=>fmt(currentFor(p)?.gust," km/h"))],
+    ["Pressure",...ps.map(p=>fmt(currentFor(p)?.pressure," hPa"))],
+    ["Precipitation",...ps.map(p=>fmt(currentFor(p)?.precip," mm"))],
+    ["Rain probability",...ps.map(p=>fmt(currentFor(p)?.rainChance,"%"))],
+    ["Cloud cover",...ps.map(p=>fmt(currentFor(p)?.cloud,"%"))],
+    ["UV",...ps.map(p=>fmt(currentFor(p)?.uv))],
+    ["Visibility",...ps.map(p=>fmt(currentFor(p)?.visibility," km"))]
+  ];
+  $("compareBody").innerHTML=rows.map(r=>`<tr><th>${r[0]}</th>${r.slice(1).map(v=>`<td>${v}</td>`).join("")}</tr>`).join("");
+}
+
+function renderDetails() {
+  const wp=provider("WeatherAPI.com");
+  const tp=provider("Tomorrow.io");
+  const op=provider("Open-Meteo");
+  const air=wp?.air;
+  const cards=[
+    {title:"WeatherAPI.com", items:[
+      ["Condition",currentFor(wp)?.condition],["Dew point",fmt(currentFor(wp)?.dew,"°C")],["Visibility",fmt(currentFor(wp)?.visibility," km")],
+      ["UV index",fmt(currentFor(wp)?.uv)],["Air PM2.5",fmt(air?.pm2_5," µg/m³",1)],["Air PM10",fmt(air?.pm10," µg/m³",1)],["NO₂",fmt(air?.no2," µg/m³",1)],["O₃",fmt(air?.o3," µg/m³",1)]
+    ]},
+    {title:"Tomorrow.io", items:[
+      ["Condition",currentFor(tp)?.condition],["Dew point",fmt(currentFor(tp)?.dew,"°C")],["Visibility",fmt(currentFor(tp)?.visibility," km")],
+      ["UV index",fmt(currentFor(tp)?.uv)],["Rain probability",fmt(currentFor(tp)?.rainChance,"%")],["Cloud cover",fmt(currentFor(tp)?.cloud,"%")]
+    ]},
+    {title:"Open-Meteo", items:[
+      ["Condition",currentFor(op)?.condition],["Cloud cover",fmt(currentFor(op)?.cloud,"%")],["Precipitation",fmt(currentFor(op)?.precip," mm")],
+      ["Wind direction",Number.isFinite(currentFor(op)?.windDir)?`${windDir(currentFor(op).windDir)} (${Math.round(currentFor(op).windDir)}°)`:"—"],
+      ["Forecast horizon","7 days loaded"],["Timezone","Asia/Kolkata"]
+    ]}
+  ];
+  $("detailCards").innerHTML=cards.map(c=>`<div class="card"><h3>${c.title}</h3><div class="metrics">${c.items.map(([a,b])=>`<div class="metric"><span>${a}</span><b>${esc(b ?? "—")}</b></div>`).join("")}</div></div>`).join("");
+  const alerts=wp?.alerts||[];
+  $("alerts").innerHTML=alerts.length ? alerts.map(a=>`<div class="alert"><b>${esc(a.headline||a.event||"Weather alert")}</b><div style="margin-top:4px">${esc(a.desc||"")}</div></div>`).join("") : "";
+}
+
+function destroyCharts(){Object.values(state.charts).forEach(c=>c?.destroy());state.charts={};}
+function makeCharts() {
+  destroyCharts();
+  const op=provider("Open-Meteo"); const arr=openMeteoHours(op);
+  if(!arr.length) return;
+  const labels=arr.map(x=>hourLabel(x.t));
+  const temp=arr.map(x=>x.temp); const rain=arr.map(x=>x.rain);
+  const common={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#9db0c7",maxTicksLimit:8},grid:{color:"rgba(255,255,255,.05)"}},y:{ticks:{color:"#9db0c7"},grid:{color:"rgba(255,255,255,.05)"}}}};
+  state.charts.temp=new Chart($("tempChart"),{type:"line",data:{labels,datasets:[{data:temp,borderColor:"#55b7ff",backgroundColor:"rgba(85,183,255,.12)",fill:true,tension:.35,pointRadius:2}]},options:common});
+  state.charts.rain=new Chart($("rainChart"),{type:"bar",data:{labels,datasets:[{data:rain,backgroundColor:"rgba(105,199,255,.55)",borderRadius:7}]},options:{...common,scales:{...common.scales,y:{...common.scales.y,min:0,max:100}}}});
+}
+
+async function load() {
+  $("refresh").disabled=true; $("refresh").textContent="Loading…";
+  try {
+    const r=await fetch("/api/weather/all",{cache:"no-store"});
+    if(!r.ok) throw new Error("Weather server returned HTTP "+r.status);
+    state.data=await r.json();
+    renderProviders();renderHero();renderOverview();renderToday();renderDays();renderCompare();renderDetails();
+    setTimeout(makeCharts,50);
+    $("generated").textContent=`Server update: ${new Date(state.data.generatedAt).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}`;
+  } catch(e) {
+    $("heroContent").innerHTML=`<div class="error-box">Could not load weather data: ${esc(e.message)}. Try refresh.</div>`;
+  } finally { $("refresh").disabled=false; $("refresh").textContent="↻ Refresh"; }
+}
+
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); $(b.dataset.tab).classList.add("active");
+  if(b.dataset.tab==="overview") setTimeout(makeCharts,50);
+}));
+$("refresh").addEventListener("click",load);
+function clock(){ $("clock").textContent=new Intl.DateTimeFormat("en-IN",{timeZone:"Asia/Kolkata",hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date())+" IST"; }
+clock();setInterval(clock,1000);load();
+</script>
+</body>
+</html>
