@@ -280,9 +280,12 @@ async function fetchWeatherAPI() {
 
 async function fetchTomorrow() {
   if (!process.env.TOMORROW_API_KEY) {
-    return { provider: "Tomorrow.io", status: "not_configured", error: "TOMORROW_API_KEY is not set" };
+    return {
+      provider: "Tomorrow.io",
+      status: "not_configured",
+      error: "TOMORROW_API_KEY is not set
+    };
   }
-
   const fields = [
     "temperature",
     "temperatureApparent",
@@ -309,7 +312,9 @@ async function fetchTomorrow() {
     apikey: process.env.TOMORROW_API_KEY
   });
 
-  const data = await getJson(`https://api.tomorrow.io/v4/weather/forecast?${params}`);
+  const data = await getJson(
+    `https://api.tomorrow.io/v4/weather/forecast?${params}`
+  );
 
   const timelines = data.timelines || {};
   const hourly = Array.isArray(timelines.hourly)
