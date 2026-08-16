@@ -267,9 +267,9 @@ async function fetchTomorrow() {
 
   const data = await getJson(`https://api.tomorrow.io/v4/weather/forecast?${params}`);
 
-  const timelines = data.timelines || [];
-  const hourly = timelines.find(t => t.timestep === "1h")?.intervals || [];
-  const daily = timelines.find(t => t.timestep === "1d")?.intervals || [];
+  const timelines = data.timelines || {};
+  const hourly = timelines.hourly?.intervals || [];
+  const daily = timelines.daily?.intervals || [];
 
   const currentPoint = hourly[0]?.values || {};
 
