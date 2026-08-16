@@ -336,6 +336,7 @@ async function fetchTomorrow() {
       windDir: num(currentPoint.windDirection),
       cloud: num(currentPoint.cloudCover),
       precip: num(currentPoint.precipitationIntensity),
+      rainIntensity: num(currentPoint.rainIntensity),
       visibility: num(currentPoint.visibility),
       uv: num(currentPoint.uvIndex),
       dew: num(currentPoint.dewPoint),
