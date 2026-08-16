@@ -341,7 +341,7 @@ async function fetchTomorrow() {
       dew: num(currentPoint.dewPoint),
       rainChance: num(currentPoint.precipitationProbability),
       code: num(currentPoint.weatherCode),
-      condition: weatherTextFromCode(currentPoint.weatherCode)
+      condition: tomorrowWeatherTextFromCode(currentPoint.weatherCode)
     },
     hourly,
     daily
