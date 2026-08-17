@@ -267,10 +267,29 @@ function renderDays() {
 
 function currentFor(p) {
   if (!ok(p)) return null;
-  const c=p.current||{};
-  return {temp:c.temp,feels:c.feels,humidity:c.humidity,wind:c.wind,gust:c.gust,pressure:c.pressure,precip:c.precip,cloud:c.cloud,visibility:c.visibility,uv:c.uv,dew:c.dew,rainChance:c.rainChance,condition:c.condition};
+  const c = p.current || {};
+  return {
+    temp: c.temp,
+    feels: c.feels,
+    humidity: c.humidity,
+    wind: c.wind,
+    gust: c.gust,
+    windDir: c.windDir,
+    pressure: c.pressure,
+    precip: c.precip,
+    rainIntensity: c.rainIntensity,
+    rainChance: c.rainChance,
+    cloud: c.cloud,
+    visibility: c.visibility,
+    uv: c.uv,
+    dew: c.dew,
+    code: c.code,
+    condition: c.condition
+  };
 }
-function renderCompare() {
+
+  
+  function renderCompare() {
   const ps=["Open-Meteo","WeatherAPI.com","Tomorrow.io"].map(provider);
   const rows=[
     ["Status",...ps.map(p=>p?.status==="ok"?"Online":p?.status==="not_configured"?"Key missing":"Error")],
