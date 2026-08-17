@@ -318,9 +318,8 @@ function renderDetails() {
       ["Condition",currentFor(wp)?.condition],["Dew point",fmt(currentFor(wp)?.dew,"°C")],["Visibility",fmt(currentFor(wp)?.visibility," km")],
       ["UV index",fmt(currentFor(wp)?.uv)],["Air PM2.5",fmt(air?.pm2_5," µg/m³",1)],["Air PM10",fmt(air?.pm10," µg/m³",1)],["NO₂",fmt(air?.no2," µg/m³",1)],["O₃",fmt(air?.o3," µg/m³",1)]
     ]},
-    {title:"Tomorrow.io", items:[
-      ["Condition",currentFor(tp)?.condition],["Dew point",fmt(currentFor(tp)?.dew,"°C")],["Visibility",fmt(currentFor(tp)?.visibility," km")],
-      ["UV index",fmt(currentFor(tp)?.uv)],["Rain probability",fmt(currentFor(tp)?.rainChance,"%")],["Cloud cover",fmt(currentFor(tp)?.cloud,"%")]
+    {title: "Tomorrow.io", items: [
+      ["Condition", currentFor(tp)?.condition],["Temperature",fmt(currentFor(tp)?.temp, "°C")],["Feels like",fmt(currentFor(tp)?.feels, "°C")],["Humidity",fmt(currentFor(tp)?.humidity, "%")],["Dew point",fmt(currentFor(tp)?.dew, "°C")],["Rain probability",fmt(currentFor(tp)?.rainChance, "%")],["Precipitation intensity",fmt(currentFor(tp)?.precip, " mm/hr", 1)],["Rain intensity",fmt(currentFor(tp)?.rainIntensity, " mm/hr", 1)],["Cloud cover",fmt(currentFor(tp)?.cloud, "%")],["Pressure",fmt(currentFor(tp)?.pressure, " hPa", 1)],["Wind speed",fmt(currentFor(tp)?.wind, " km/h", 1)],["Wind gust",fmt(currentFor(tp)?.gust, " km/h", 1)],["Wind direction",Number.isFinite(currentFor(tp)?.windDir)?`${windDir(currentFor(tp).windDir)} (${Math.round(currentFor(tp).windDir)}°)`: "—"],["Visibility",fmt(currentFor(tp)?.visibility, " km", 1)],["UV index",fmt(currentFor(tp)?.uv)]
     ]},
     {title:"Open-Meteo", items:[
       ["Condition",currentFor(op)?.condition],["Cloud cover",fmt(currentFor(op)?.cloud,"%")],["Precipitation",fmt(currentFor(op)?.precip," mm")],
