@@ -283,7 +283,7 @@ async function fetchTomorrow() {
     return {
       provider: "Tomorrow.io",
       status: "not_configured",
-      error: "TOMORROW_API_KEY is not set
+      error: "TOMORROW_API_KEY is not set"
     };
   }
   const fields = [
